@@ -11,14 +11,14 @@ type VAR = String
 
 differentiate :: Func -> VAR -> Func
 
-differentiate (Constant f) (Variable x) = Constant 0.0
+differentiate (Constant f) x = Constant 0.0
 
-differentiate (Variable f) (Variable x) = if x == f
+differentiate (Variable f) x = if x == f
 					  then Constant 1.0
 					  else Constant 0.0
 
 
-differentiate (Unop u f) (Variable x)
+differentiate (Unop u f) x
 	| u == NEG  = Unop NEG  $ differentiate f x
 	| u == SIN  = Binop MUL (differentiate f x) $ Unop COS f
 	| u == COS  = Binop MUL (differentiate f x) $ Unop NEG $ Unop SIN f
@@ -31,7 +31,7 @@ differentiate (Unop u f) (Variable x)
 	| u == ATAN = Binop DIV (differentiate f x) $ Binop ADD (Constant 1.0) $ Binop POW f $ Constant 2.0
 	| otherwise = Constant 0.0
 
-differentiate (Binop b f g) (Variable x)
+differentiate (Binop b f g) x
 	| b == ADD = Binop ADD (differentiate f x) $ differentiate g x
 	| b == SUB = Binop SUB (differentiate f x) $ differentiate g x
 	| b == MUL = Binop ADD (Binop MUL g  $ differentiate f x) $ Binop MUL f $ differentiate g x
