@@ -1,7 +1,7 @@
 data Func = Unop UOP Func | Binop BOP Func Func | Constant Double | Variable VAR
 	deriving Show
 
-data UOP = NEG | SIN | COS | TAN | EXP | LN | ASIN | ACOS | ATAN | SQRT
+data UOP = NEG | SIN | COS | TAN | EXP | LN | ASIN | ACOS | ATAN | SQRT | INV
 	deriving (Show, Eq)
 
 data BOP = ADD | SUB | MUL | DIV | POW | LOG
@@ -10,6 +10,7 @@ data BOP = ADD | SUB | MUL | DIV | POW | LOG
 type VAR = String
 
 differentiate :: Func -> VAR -> Func
+--differentiate a function with respect to a specific variable
 
 differentiate (Constant f) x = Constant 0.0
 
@@ -26,6 +27,7 @@ differentiate (Unop u f) x
 	| u == EXP  = Binop MUL (differentiate f x) $ Unop EXP f
 	| u == LN   = Binop DIV (differentiate f x) f
 	| u == SQRT = Binop DIV (differentiate f x) $ Binop MUL (Constant 2.0) $ Unop SQRT f
+	| u == INV  = Unop NEG $ Binop DIV (differentiate f x) $ Binop POW f $ Constant 2.0
 	| u == ASIN = Binop DIV (differentiate f x) $ Unop SQRT $ Binop SUB (Constant 1.0) $ Binop POW f $ Constant 2.0
 	| u == ACOS = Binop DIV (Unop NEG $ differentiate f x) $ Unop SQRT $ Binop SUB (Constant 1.0) $ Binop POW f $ Constant 2.0
 	| u == ATAN = Binop DIV (differentiate f x) $ Binop ADD (Constant 1.0) $ Binop POW f $ Constant 2.0
@@ -40,3 +42,13 @@ differentiate (Binop b f g) x
 	| b == LOG = Binop DIV (Binop SUB (Binop DIV (Binop MUL (Unop LN f) $ differentiate g x) g) $ Binop DIV (Binop MUL (Unop LN g) $ differentiate f x) f) $ Binop POW (Unop LN f) $ Constant 2.0
 	| otherwise = Constant 0.0
 	
+main :: IO()
+
+main = putStrLn (show $ differentiate (Unop EXP $ Variable "x") "x")
+
+
+
+
+
+
+
